@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Parser.cs">
+    <Files>
+      <File FileName="Assets\Scripts\GraphInit.cs" Line="23" Column="1" />
+      <File FileName="Assets\Scripts\Graph.cs" Line="106" Column="7" />
+      <File FileName="Assets\Scripts\Layout.cs" Line="65" Column="1" />
+      <File FileName="Assets\Scripts\Parser.cs" Line="57" Column="20" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

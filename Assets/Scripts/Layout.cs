@@ -62,7 +62,6 @@ public class Layout {
 	Graph graph;
 	int width = 200;
 	int height = 200;
-	int depth = 200;
 	bool finished = false;
 	
 	//var callback_positionUpdated = options.positionUpdated;
@@ -75,6 +74,9 @@ public class Layout {
 	float temperature = 40;
 	float nodes_length;
 	float edges_length;
+
+	public int center;
+
 	//var that = this;
 	
 	// performance test
@@ -98,8 +100,8 @@ public class Layout {
 		this.graph = graph;
 		width = 200;
 		height = 200;
-		depth = 200;
 		finished = false;
+		center = -1;
 	}
 
 	/**
@@ -107,7 +109,7 @@ public class Layout {
 		*/
 	public void init() {
 		finished = false;
-		temperature = width;
+		temperature = width * 7.0f;
 		nodes_length = graph.nodes.Count;
 		edges_length = graph.edges.Count;
 		forceConstant = (float)Math.Sqrt(height * width / nodes_length);
@@ -122,11 +124,12 @@ public class Layout {
 		* the temperature is nearly zero.
 		*/
 	public bool generate() {
-		if (layout_iterations < this.max_iterations && temperature > 0.000001) {
+		if (layout_iterations < this.max_iterations && temperature > 0.000001 && !finished) {
 			//var start = new Date().getTime();
 			
 			// calculate repulsion
-			for (int i = 0; i < nodes_length; i++) {
+			for (int i = 0; i < nodes_length; i++) {			
+
 				Graph.Node node_v = graph.nodes [i];
 				//node_v.layout = node_v.layout || {};
 				//if (i == 0) {
@@ -152,8 +155,9 @@ public class Layout {
 						float delta_y = node_v.layout.tmp_pos_y - node_u.layout.tmp_pos_y;
 						float delta_z = node_v.layout.tmp_pos_z - node_u.layout.tmp_pos_z;
 						
-						float delta_length = (float)Math.Max (EPSILON, Math.Sqrt ((delta_x * delta_x) + (delta_y * delta_y)));
-						float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt ((delta_z * delta_z) + (delta_y * delta_y)));
+						float delta_length = (float)Math.Max (EPSILON, Math.Sqrt ((delta_x * delta_x) + (delta_y * delta_y) + (delta_z * delta_z)));
+						//float delta_length = (float)Math.Max (EPSILON, Math.Sqrt ((delta_z * delta_z) + (delta_y * delta_y)));
+						//float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt ((delta_z * delta_z) + (delta_y * delta_y)));
 						
 						float force = (repulsion_constant * repulsion_constant) / delta_length;
 						//var force_z = (repulsion_constant * repulsion_constant) / delta_length_z;
@@ -172,8 +176,11 @@ public class Layout {
 						node_u.layout.offset_x -= (delta_x / delta_length) * force;
 						node_u.layout.offset_y -= (delta_y / delta_length) * force;
 
-						node_v.layout.offset_z += (delta_z / delta_length_z) * force;
-						node_u.layout.offset_z -= (delta_z / delta_length_z) * force;
+						node_v.layout.offset_z += (delta_z / delta_length) * force;
+						node_u.layout.offset_z -= (delta_z / delta_length) * force;
+						
+						//node_v.layout.offset_z += (delta_z / delta_length_z) * force;
+						//node_u.layout.offset_z -= (delta_z / delta_length_z) * force;
 					}
 				}
 			}
@@ -185,8 +192,8 @@ public class Layout {
 				float delta_y = edge.source.layout.tmp_pos_y - edge.target.layout.tmp_pos_y;
 				float delta_z = edge.source.layout.tmp_pos_z - edge.target.layout.tmp_pos_z;
 				
-				float delta_length = (float)Math.Max (EPSILON, Math.Sqrt ((delta_x * delta_x) + (delta_y * delta_y)));
-				float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt ((delta_z * delta_z) + (delta_y * delta_y)));
+				float delta_length = (float)Math.Max (EPSILON, Math.Sqrt ((delta_x * delta_x) + (delta_y * delta_y) + (delta_y * delta_y)));
+				//float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt ((delta_z * delta_z) + (delta_y * delta_y)));
 				float force = (delta_length * delta_length) / attraction_constant;
 				//var force_z = (delta_length_z * delta_length_z) / attraction_constant;
 				
@@ -195,27 +202,30 @@ public class Layout {
 				
 				edge.source.layout.offset_x -= (delta_x / delta_length) * force;
 				edge.source.layout.offset_y -= (delta_y / delta_length) * force;
-				edge.source.layout.offset_z -= (delta_z / delta_length_z) * force;
+				edge.source.layout.offset_z -= (delta_z / delta_length) * force;
 				
 				edge.target.layout.offset_x += (delta_x / delta_length) * force;
 				edge.target.layout.offset_y += (delta_y / delta_length) * force;
-				edge.target.layout.offset_z += (delta_z / delta_length_z) * force;
+				edge.target.layout.offset_z += (delta_z / delta_length) * force;
 			}
 			
 			// calculate positions
 			for (var i = 0; i < nodes_length; i++) {
 				Graph.Node node = graph.nodes [i];
-				float delta_length = (float)Math.Max (EPSILON, Math.Sqrt (node.layout.offset_x * node.layout.offset_x + node.layout.offset_y * node.layout.offset_y));
-				float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt (node.layout.offset_z * node.layout.offset_z + node.layout.offset_y * node.layout.offset_y));
+				float delta_length = (float)Math.Max (EPSILON, Math.Sqrt (node.layout.offset_x * node.layout.offset_x + node.layout.offset_y * node.layout.offset_y + node.layout.offset_z * node.layout.offset_z));
+				//float delta_length_z = (float)Math.Max (EPSILON, Math.Sqrt (node.layout.offset_z * node.layout.offset_z + node.layout.offset_y * node.layout.offset_y));
 				
 				node.layout.tmp_pos_x += (node.layout.offset_x / delta_length) * Math.Min (delta_length, temperature);
 				node.layout.tmp_pos_y += (node.layout.offset_y / delta_length) * Math.Min (delta_length, temperature);
-				node.layout.tmp_pos_z += (node.layout.offset_z / delta_length_z) * Math.Min (delta_length_z, temperature);
+				node.layout.tmp_pos_z += (node.layout.offset_z / delta_length) * Math.Min (delta_length, temperature);
 				
 				//bool updated = true;
-				node.position.x -= (node.position.x - node.layout.tmp_pos_x) / 10;
-				node.position.y -= (node.position.y - node.layout.tmp_pos_y) / 10;
-				node.position.z -= (node.position.z - node.layout.tmp_pos_z) / 10;
+				if(i != center) // don't update the center node
+				{
+					node.position.x -= (node.position.x - node.layout.tmp_pos_x) / 10;
+					node.position.y -= (node.position.y - node.layout.tmp_pos_y) / 10;
+					node.position.z -= (node.position.z - node.layout.tmp_pos_z) / 10;
+				}
 
 				/*
 				// execute callback function if positions has been updated
@@ -226,22 +236,17 @@ public class Layout {
 			}
 
 			temperature *= (1 - ((float)layout_iterations / (float)this.max_iterations));
-			Debug.Log ("iterations = " + layout_iterations + "\ntemperature = " + temperature);
+			//Debug.Log ("iterations = " + layout_iterations + "\ntemperature = " + temperature);
 			layout_iterations++;
 			
 			//var end = new Date().getTime();
 			//mean_time += end - start;
-		} else
-			return false;
-		/*
+		}
 		else {
-			if (!this.finished) {
-				console.log("Average time: " + (mean_time / layout_iterations) + " ms");
-			}
 			this.finished = true;
 			return false;
 		}
-		*/
+
 		return true;
 	}
 	

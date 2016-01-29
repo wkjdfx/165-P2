@@ -50,7 +50,7 @@ public class Parser{
 				words = name.Split(separatingChars, System.StringSplitOptions.RemoveEmptyEntries );
 				name = words[1];
 
-				graph.addNode(new Graph.Node(id, name, rng.Next(0, 200), rng.Next(0, 200), rng.Next(0, 200)));
+				graph.addNode(new Graph.Node(id, name, rng.Next(-100, 100), rng.Next(-100, 100), rng.Next(-100, 100)));
 
 			}
 			else if(line.Equals("  edge"))

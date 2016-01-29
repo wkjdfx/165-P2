@@ -60,7 +60,9 @@ public class Graph {
 		public List<Node> nodesTo;
 		public List<Node> nodesFrom;
 		public Vector3 position;
+		public Vector3 original;
 		public Layout layout;
+		public bool deleted;
 
 		public struct Layout{
 			public float offset_x, offset_y, offset_z;
@@ -77,9 +79,10 @@ public class Graph {
 			this.name = name;
 			this.nodesTo = new List<Node>();
 			this.nodesFrom = new List<Node>();
-			//this.position = new Position(rnd.Next(-width, width), rnd.Next(-height, height), rnd.Next(-depth, depth));
 			this.position = new Vector3(x, y, z);
+			this.original = new Vector3(x, y, z);
 			this.layout = new Layout();
+			this.deleted = false;
 		}		
 
 		public void print(){
